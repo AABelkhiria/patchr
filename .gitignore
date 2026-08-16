@@ -1,0 +1,15 @@
+# Build & compilation outputs
+out/
+node_modules/
+*.vsix
+*.diff
+*.patch
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log

@@ -1,0 +1,78 @@
+name: Release Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      semver-increment:
+        description: 'Semantic version increment'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: release-marketplace
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Calculate next version
+        id: versioning
+        uses: AABelkhiria/next-version@v2
+        with:
+          mode: git-semver
+          semver-increment: ${{ github.event.inputs.semver-increment }}
+
+      - name: Update package.json version
+        run: |
+          bun pm pkg set version=${{ steps.versioning.outputs.new-version }}
+
+      - name: Compile extension
+        run: bun run compile
+
+      - name: Package extension (VSIX)
+        run: bunx vsce package -o diff-${{ steps.versioning.outputs.new-version }}.vsix
+
+      - name: Publish to Visual Studio Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "Error: VSCE_PAT secret is not set."
+            exit 1
+          fi
+          bunx vsce publish --packagePath diff-${{ steps.versioning.outputs.new-version }}.vsix -p "$VSCE_PAT"
+
+      - name: Create and push Git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v${{ steps.versioning.outputs.new-version }}
+          git push origin v${{ steps.versioning.outputs.new-version }}
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-v${{ steps.versioning.outputs.new-version }}
+          path: diff-${{ steps.versioning.outputs.new-version }}.vsix

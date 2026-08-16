@@ -1,0 +1,156 @@
+{
+  "name": "diff",
+  "displayName": "Diff",
+  "description": "Generate, save, and apply Git patches (.patch) directly from VS Code",
+  "version": "0.0.1",
+  "publisher": "AshBelkhiria",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "diff",
+    "git",
+    "staged",
+    "patch",
+    "version control"
+  ],
+  "activationEvents": [],
+  "icon": "icon.png",
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "diff.saveStagedDiff",
+        "title": "Diff: Save Staged Changes to Patch File"
+      },
+      {
+        "command": "diff.saveUnstagedDiff",
+        "title": "Diff: Save Unstaged Changes to Patch File"
+      },
+      {
+        "command": "diff.saveAllDiff",
+        "title": "Diff: Save All Changes (Staged & Unstaged) to Patch File"
+      },
+      {
+        "command": "diff.saveCurrentFileDiff",
+        "title": "Diff: Save File Changes to Patch File"
+      },
+      {
+        "command": "diff.applyDiff",
+        "title": "Diff: Apply Patch File"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "diff.applyDiff",
+          "when": "resourceExtname == .patch || resourceExtname == .diff",
+          "group": "diff@1"
+        },
+        {
+          "command": "diff.saveCurrentFileDiff",
+          "when": "!explorerResourceIsFolder",
+          "group": "diff@2"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "diff.saveStagedDiff",
+          "group": "diff@1"
+        },
+        {
+          "command": "diff.saveUnstagedDiff",
+          "group": "diff@2"
+        },
+        {
+          "command": "diff.saveAllDiff",
+          "group": "diff@3"
+        },
+        {
+          "command": "diff.applyDiff",
+          "group": "diff@4"
+        }
+      ],
+      "scm/resourceGroup/context": [
+        {
+          "command": "diff.saveStagedDiff",
+          "when": "scmProvider == git && scmResourceGroup == staged",
+          "group": "diff"
+        },
+        {
+          "command": "diff.saveUnstagedDiff",
+          "when": "scmProvider == git && scmResourceGroup == workingTree",
+          "group": "diff"
+        }
+      ],
+      "scm/resourceState/context": [
+        {
+          "command": "diff.saveCurrentFileDiff",
+          "when": "scmProvider == git",
+          "group": "diff"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "diff.saveCurrentFileDiff",
+          "group": "diff@1"
+        },
+        {
+          "command": "diff.applyDiff",
+          "when": "resourceExtname == .patch || resourceExtname == .diff",
+          "group": "diff@2"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "diff.saveCurrentFileDiff",
+          "group": "diff@1"
+        },
+        {
+          "command": "diff.applyDiff",
+          "when": "resourceExtname == .patch || resourceExtname == .diff",
+          "group": "diff@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Diff",
+      "properties": {
+        "diff.appendPatchExtension": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically append .patch extension to the filename if not provided."
+        },
+        "diff.slugifyFilename": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically replace spaces and special characters with dashes (-) in the filename."
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AABelkhiria/diff.git"
+  },
+  "homepage": "https://github.com/AABelkhiria/diff#readme",
+  "bugs": {
+    "url": "https://github.com/AABelkhiria/diff/issues"
+  },
+  "scripts": {
+    "vscode:prepublish": "bun run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "typescript": "^5.3.3"
+  }
+}
