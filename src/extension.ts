@@ -11,21 +11,9 @@ export function formatFilename(inputName: string): string {
     return name;
   }
 
-  const config = vscode.workspace.getConfiguration('diffly');
-  const legacyConfig = vscode.workspace.getConfiguration('diff');
-
-  const appendPatchExtension = config.get<boolean>(
-    'appendPatchExtension',
-    legacyConfig.get<boolean>(
-      'appendPatchExtension',
-      legacyConfig.get<boolean>('appendDiffExtension', true)
-    )
-  );
-
-  const slugifyFilename = config.get<boolean>(
-    'slugifyFilename',
-    legacyConfig.get<boolean>('slugifyFilename', true)
-  );
+  const config = vscode.workspace.getConfiguration('patchr');
+  const appendPatchExtension = config.get<boolean>('appendPatchExtension', true);
+  const slugifyFilename = config.get<boolean>('slugifyFilename', true);
 
   // 1. Slugify spaces and special characters if enabled
   if (slugifyFilename) {
@@ -64,7 +52,7 @@ async function generateAndSaveDiff(
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
     vscode.window.showErrorMessage(
-      'Diffly: Please open a workspace folder first.'
+      'Patchr: Please open a workspace folder first.'
     );
     return;
   }
@@ -110,11 +98,11 @@ async function generateAndSaveDiff(
       if (error) {
         if (stderr.includes('not a git repository')) {
           vscode.window.showErrorMessage(
-            'Diffly: The current workspace folder is not a Git repository.'
+            'Patchr: The current workspace folder is not a Git repository.'
           );
         } else {
           vscode.window.showErrorMessage(
-            `Diffly error: ${stderr || error.message}`
+            `Patchr error: ${stderr || error.message}`
           );
         }
         return;
@@ -123,7 +111,7 @@ async function generateAndSaveDiff(
       const diffContent = stdout;
 
       if (!diffContent || diffContent.trim().length === 0) {
-        vscode.window.showWarningMessage(`Diffly: ${noChangesMsg}`);
+        vscode.window.showWarningMessage(`Patchr: ${noChangesMsg}`);
         return;
       }
 
@@ -204,14 +192,14 @@ export function activate(context: vscode.ExtensionContext) {
   ) => {
     const targetUri = resolveResourceUri(resource);
     if (!targetUri) {
-      vscode.window.showErrorMessage('Diffly: No active text file or file selected.');
+      vscode.window.showErrorMessage('Patchr: No active text file or file selected.');
       return;
     }
 
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(targetUri);
     if (!workspaceFolder) {
       vscode.window.showErrorMessage(
-        'Diffly: The selected file is not inside a workspace folder.'
+        'Patchr: The selected file is not inside a workspace folder.'
       );
       return;
     }
@@ -234,7 +222,7 @@ export function activate(context: vscode.ExtensionContext) {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
       vscode.window.showErrorMessage(
-        'Diffly: Please open a workspace folder first.'
+        'Patchr: Please open a workspace folder first.'
       );
       return;
     }
@@ -275,7 +263,7 @@ export function activate(context: vscode.ExtensionContext) {
       async (error, stdout, stderr) => {
         if (error) {
           vscode.window.showErrorMessage(
-            `Diffly: Failed to apply patch. ${stderr || error.message}`
+            `Patchr: Failed to apply patch. ${stderr || error.message}`
           );
           return;
         }
@@ -288,20 +276,13 @@ export function activate(context: vscode.ExtensionContext) {
     );
   };
 
-  // Register diffly.* commands and legacy diff.* aliases
+  // Register patchr.* commands
   context.subscriptions.push(
-    vscode.commands.registerCommand('diffly.saveStagedDiff', saveStagedHandler),
-    vscode.commands.registerCommand('diffly.saveUnstagedDiff', saveUnstagedHandler),
-    vscode.commands.registerCommand('diffly.saveAllDiff', saveAllHandler),
-    vscode.commands.registerCommand('diffly.saveCurrentFileDiff', saveCurrentFileHandler),
-    vscode.commands.registerCommand('diffly.applyDiff', applyDiffHandler),
-
-    // Legacy aliases
-    vscode.commands.registerCommand('diff.saveStagedDiff', saveStagedHandler),
-    vscode.commands.registerCommand('diff.saveUnstagedDiff', saveUnstagedHandler),
-    vscode.commands.registerCommand('diff.saveAllDiff', saveAllHandler),
-    vscode.commands.registerCommand('diff.saveCurrentFileDiff', saveCurrentFileHandler),
-    vscode.commands.registerCommand('diff.applyDiff', applyDiffHandler)
+    vscode.commands.registerCommand('patchr.saveStagedDiff', saveStagedHandler),
+    vscode.commands.registerCommand('patchr.saveUnstagedDiff', saveUnstagedHandler),
+    vscode.commands.registerCommand('patchr.saveAllDiff', saveAllHandler),
+    vscode.commands.registerCommand('patchr.saveCurrentFileDiff', saveCurrentFileHandler),
+    vscode.commands.registerCommand('patchr.applyDiff', applyDiffHandler)
   );
 }
 
