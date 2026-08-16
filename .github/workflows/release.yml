@@ -46,13 +46,13 @@ jobs:
 
       - name: Update package.json version
         run: |
-          bun pm pkg set version=${{ steps.versioning.outputs.new-version }}
+          bun pm pkg set version=${{ steps.versioning.outputs.version-core }}
 
       - name: Compile extension
         run: bun run compile
 
       - name: Package extension (VSIX)
-        run: bunx vsce package -o diff-${{ steps.versioning.outputs.new-version }}.vsix
+        run: bunx vsce package -o diff-${{ steps.versioning.outputs.version-core }}.vsix
 
       - name: Publish to Visual Studio Marketplace
         env:
@@ -62,17 +62,17 @@ jobs:
             echo "Error: VSCE_PAT secret is not set."
             exit 1
           fi
-          bunx vsce publish --packagePath diff-${{ steps.versioning.outputs.new-version }}.vsix -p "$VSCE_PAT"
+          bunx vsce publish --packagePath diff-${{ steps.versioning.outputs.version-core }}.vsix -p "$VSCE_PAT"
 
       - name: Create and push Git tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag v${{ steps.versioning.outputs.new-version }}
-          git push origin v${{ steps.versioning.outputs.new-version }}
+          git tag ${{ steps.versioning.outputs.new-version }}
+          git push origin ${{ steps.versioning.outputs.new-version }}
 
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@v4
         with:
-          name: extension-v${{ steps.versioning.outputs.new-version }}
-          path: diff-${{ steps.versioning.outputs.new-version }}.vsix
+          name: extension-${{ steps.versioning.outputs.new-version }}
+          path: diff-${{ steps.versioning.outputs.version-core }}.vsix
