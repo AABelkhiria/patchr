@@ -1,6 +1,6 @@
 {
-  "name": "diff",
-  "displayName": "Diff",
+  "name": "diffly",
+  "displayName": "Diffly",
   "description": "Generate, save, and apply Git patches (.patch) directly from VS Code",
   "version": "0.0.1",
   "publisher": "AshBelkhiria",
@@ -13,6 +13,7 @@
   ],
   "keywords": [
     "diff",
+    "diffly",
     "git",
     "staged",
     "patch",
@@ -24,108 +25,108 @@
   "contributes": {
     "commands": [
       {
-        "command": "diff.saveStagedDiff",
-        "title": "Diff: Save Staged Changes to Patch File"
+        "command": "diffly.saveStagedDiff",
+        "title": "Diffly: Save Staged Changes to Patch File"
       },
       {
-        "command": "diff.saveUnstagedDiff",
-        "title": "Diff: Save Unstaged Changes to Patch File"
+        "command": "diffly.saveUnstagedDiff",
+        "title": "Diffly: Save Unstaged Changes to Patch File"
       },
       {
-        "command": "diff.saveAllDiff",
-        "title": "Diff: Save All Changes (Staged & Unstaged) to Patch File"
+        "command": "diffly.saveAllDiff",
+        "title": "Diffly: Save All Changes (Staged & Unstaged) to Patch File"
       },
       {
-        "command": "diff.saveCurrentFileDiff",
-        "title": "Diff: Save File Changes to Patch File"
+        "command": "diffly.saveCurrentFileDiff",
+        "title": "Diffly: Save File Changes to Patch File"
       },
       {
-        "command": "diff.applyDiff",
-        "title": "Diff: Apply Patch File"
+        "command": "diffly.applyDiff",
+        "title": "Diffly: Apply Patch File"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "diff.applyDiff",
+          "command": "diffly.applyDiff",
           "when": "resourceExtname == .patch || resourceExtname == .diff",
-          "group": "diff@1"
+          "group": "diffly@1"
         },
         {
-          "command": "diff.saveCurrentFileDiff",
+          "command": "diffly.saveCurrentFileDiff",
           "when": "!explorerResourceIsFolder",
-          "group": "diff@2"
+          "group": "diffly@2"
         }
       ],
       "scm/title": [
         {
-          "command": "diff.saveStagedDiff",
-          "group": "diff@1"
+          "command": "diffly.saveStagedDiff",
+          "group": "diffly@1"
         },
         {
-          "command": "diff.saveUnstagedDiff",
-          "group": "diff@2"
+          "command": "diffly.saveUnstagedDiff",
+          "group": "diffly@2"
         },
         {
-          "command": "diff.saveAllDiff",
-          "group": "diff@3"
+          "command": "diffly.saveAllDiff",
+          "group": "diffly@3"
         },
         {
-          "command": "diff.applyDiff",
-          "group": "diff@4"
+          "command": "diffly.applyDiff",
+          "group": "diffly@4"
         }
       ],
       "scm/resourceGroup/context": [
         {
-          "command": "diff.saveStagedDiff",
+          "command": "diffly.saveStagedDiff",
           "when": "scmProvider == git && scmResourceGroup == staged",
-          "group": "diff"
+          "group": "diffly"
         },
         {
-          "command": "diff.saveUnstagedDiff",
+          "command": "diffly.saveUnstagedDiff",
           "when": "scmProvider == git && scmResourceGroup == workingTree",
-          "group": "diff"
+          "group": "diffly"
         }
       ],
       "scm/resourceState/context": [
         {
-          "command": "diff.saveCurrentFileDiff",
+          "command": "diffly.saveCurrentFileDiff",
           "when": "scmProvider == git",
-          "group": "diff"
+          "group": "diffly"
         }
       ],
       "editor/context": [
         {
-          "command": "diff.saveCurrentFileDiff",
-          "group": "diff@1"
+          "command": "diffly.saveCurrentFileDiff",
+          "group": "diffly@1"
         },
         {
-          "command": "diff.applyDiff",
+          "command": "diffly.applyDiff",
           "when": "resourceExtname == .patch || resourceExtname == .diff",
-          "group": "diff@2"
+          "group": "diffly@2"
         }
       ],
       "editor/title/context": [
         {
-          "command": "diff.saveCurrentFileDiff",
-          "group": "diff@1"
+          "command": "diffly.saveCurrentFileDiff",
+          "group": "diffly@1"
         },
         {
-          "command": "diff.applyDiff",
+          "command": "diffly.applyDiff",
           "when": "resourceExtname == .patch || resourceExtname == .diff",
-          "group": "diff@2"
+          "group": "diffly@2"
         }
       ]
     },
     "configuration": {
-      "title": "Diff",
+      "title": "Diffly",
       "properties": {
-        "diff.appendPatchExtension": {
+        "diffly.appendPatchExtension": {
           "type": "boolean",
           "default": true,
           "description": "Automatically append .patch extension to the filename if not provided."
         },
-        "diff.slugifyFilename": {
+        "diffly.slugifyFilename": {
           "type": "boolean",
           "default": true,
           "description": "Automatically replace spaces and special characters with dashes (-) in the filename."

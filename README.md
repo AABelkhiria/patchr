@@ -1,4 +1,4 @@
-# Diff (VS Code Extension)
+# Diffly
 
 Generate and save Git patches (`.patch`) directly from VS Code — via Command Palette, Source Control view, Explorer context menu, or the editor.
 
@@ -18,25 +18,25 @@ Generate and save Git patches (`.patch`) directly from VS Code — via Command P
 
 This extension contributes the following settings:
 
-* `diff.appendPatchExtension`: Automatically append `.patch` extension to the filename if not provided (default: `true`).
-* `diff.slugifyFilename`: Automatically replace spaces and special characters with dashes (`-`) in the filename (default: `true`).
+* `diffly.appendPatchExtension`: Automatically append `.patch` extension to the filename if not provided (default: `true`).
+* `diffly.slugifyFilename`: Automatically replace spaces and special characters with dashes (`-`) in the filename (default: `true`).
 
 ## Usage
 
 ### Exporting Patch Files
 Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and choose any of the available export commands:
-- **`Diff: Save Staged Changes to Patch File`**: Exports staged Git changes (`git diff --cached`).
-- **`Diff: Save Unstaged Changes to Patch File`**: Exports unstaged working directory changes (`git diff`).
-- **`Diff: Save All Changes (Staged & Unstaged) to Patch File`**: Exports all modified code (`git diff HEAD`).
-- **`Diff: Save File Changes to Patch File`**: Exports changes for the active or selected file.
+- **`Diffly: Save Staged Changes to Patch File`**: Exports staged Git changes (`git diff --cached`).
+- **`Diffly: Save Unstaged Changes to Patch File`**: Exports unstaged working directory changes (`git diff`).
+- **`Diffly: Save All Changes (Staged & Unstaged) to Patch File`**: Exports all modified code (`git diff HEAD`).
+- **`Diffly: Save File Changes to Patch File`**: Exports changes for the active or selected file.
 
 ### Applying a Patch File
 1. Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`).
-2. Search for **`Diff: Apply Patch File`** and press `Enter`.
+2. Search for **`Diffly: Apply Patch File`** and press `Enter`.
 3. Select the `.patch` or `.diff` file from your file system.
 4. The patch will be applied to your repository using `git apply`.
 
-**Or** right-click a `.patch` / `.diff` file in the Explorer or editor tab and select **Diff: Apply Patch File**.
+**Or** right-click a `.patch` / `.diff` file in the Explorer or editor tab and select **Diffly: Apply Patch File**.
 
 ### From the Source Control View
 - Click the **⋯** menu in the Source Control title bar to access all export and apply commands.
@@ -50,7 +50,7 @@ Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`) and choose any of the avai
    code /Users/ash/repos/diff
    ```
 2. Press `F5` to open a new **Extension Development Host** window with the extension loaded.
-3. In the new window, press `Cmd+Shift+P` and test `Diff: Save Staged Changes to Patch File`.
+3. In the new window, press `Cmd+Shift+P` and test `Diffly: Save Staged Changes to Patch File`.
 
 ## Packaging (.vsix)
 
@@ -81,3 +81,4 @@ GitHub Actions will automatically:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
