@@ -45,7 +45,11 @@ export const ALL_SPEC: DiffSpec = {
 async function readDiff(spec: DiffSpec, cwd: string): Promise<string | undefined> {
   let diffContent: string;
   try {
-    diffContent = await runGit(['diff', ...spec.gitArgs], cwd);
+    const includeBinary = vscode.workspace
+      .getConfiguration('patchr')
+      .get<boolean>('includeBinary', true);
+    const flags = includeBinary ? ['--binary'] : [];
+    diffContent = await runGit(['diff', ...flags, ...spec.gitArgs], cwd);
   } catch (err: any) {
     const message: string = err.message || String(err);
     if (message.includes('not a git repository')) {

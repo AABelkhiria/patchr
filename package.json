@@ -229,6 +229,11 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically replace spaces and special characters with dashes (-) in the filename."
+        },
+        "patchr.includeBinary": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include full binary content (git diff --binary) so patches that touch binary files can be applied. When disabled, binary changes appear as a one-line stub that git apply rejects."
         }
       }
     }

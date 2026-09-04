@@ -48,6 +48,7 @@ They appear in the same context menus as their **Save** counterparts.
 | :--- | :--- | :--- |
 | `patchr.appendPatchExtension` | `true` | Automatically append `.patch` to filenames. |
 | `patchr.slugifyFilename` | `true` | Replace spaces and special characters with dashes (`-`). |
+| `patchr.includeBinary` | `true` | Include full binary content (`git diff --binary`) so patches touching binary files can be applied. |
 
 ## License
 
