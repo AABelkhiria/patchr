@@ -41,6 +41,10 @@
         "title": "Patchr: Save File Changes to Patch File"
       },
       {
+        "command": "patchr.saveFolderDiff",
+        "title": "Patchr: Save Folder Changes to Patch File"
+      },
+      {
         "command": "patchr.applyDiff",
         "title": "Patchr: Apply Patch File"
       }
@@ -54,7 +58,12 @@
         },
         {
           "command": "patchr.saveCurrentFileDiff",
-          "when": "!explorerResourceIsFolder",
+          "when": "!explorerResourceIsFolder && resourceExtname != .patch && resourceExtname != .diff",
+          "group": "patchr@2"
+        },
+        {
+          "command": "patchr.saveFolderDiff",
+          "when": "explorerResourceIsFolder",
           "group": "patchr@2"
         }
       ],
@@ -88,6 +97,13 @@
           "group": "patchr"
         }
       ],
+      "scm/resourceFolder/context": [
+        {
+          "command": "patchr.saveFolderDiff",
+          "when": "scmProvider == git",
+          "group": "patchr"
+        }
+      ],
       "scm/resourceState/context": [
         {
           "command": "patchr.saveCurrentFileDiff",
@@ -98,6 +114,7 @@
       "editor/context": [
         {
           "command": "patchr.saveCurrentFileDiff",
+          "when": "resourceExtname != .patch && resourceExtname != .diff",
           "group": "patchr@1"
         },
         {
@@ -109,6 +126,7 @@
       "editor/title/context": [
         {
           "command": "patchr.saveCurrentFileDiff",
+          "when": "resourceExtname != .patch && resourceExtname != .diff",
           "group": "patchr@1"
         },
         {
