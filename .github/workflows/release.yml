@@ -1,33 +1,23 @@
-name: Release Extension
+name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      semver-increment:
-        description: 'Semantic version increment'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+
+permissions:
+  contents: read
 
 concurrency:
-  group: release-marketplace
+  group: release
   cancel-in-progress: false
 
 jobs:
-  release:
+  verify:
+    name: Verify release candidate
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -37,42 +27,103 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Calculate next version
-        id: versioning
-        uses: AABelkhiria/next-version@v2
-        with:
-          mode: git-semver
-          semver-increment: ${{ github.event.inputs.semver-increment }}
-
-      - name: Update package.json version
+      - name: Read the version from package.json
+        id: version
         run: |
-          bun pm pkg set version=${{ steps.versioning.outputs.version-core }}
+          version="$(jq -r '.version' package.json)"
+          if [ -z "$version" ] || [ "$version" = "null" ]; then
+            echo "could not read the version from package.json" >&2
+            exit 1
+          fi
+          if ! echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "version '${version}' is not a plain MAJOR.MINOR.PATCH; the Marketplace does not accept prerelease suffixes" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "preparing to release patchr $version"
+
+      - name: Refuse to republish an existing version
+        run: |
+          version='${{ steps.version.outputs.version }}'
+          if [ -n "$(git ls-remote --tags origin "refs/tags/v${version}")" ]; then
+            echo "tag v${version} already exists; bump the version in package.json first" >&2
+            exit 1
+          fi
+          echo "v${version} has not been released yet"
+
+      - name: Confirm the changelog documents this version
+        run: |
+          version='${{ steps.version.outputs.version }}'
+          if ! grep -qF "## [${version}]" CHANGELOG.md; then
+            echo "CHANGELOG.md has no '## [${version}]' section" >&2
+            exit 1
+          fi
 
       - name: Compile extension
         run: bun run compile
 
       - name: Package extension (VSIX)
-        run: bunx vsce package -o patchr-${{ steps.versioning.outputs.version-core }}.vsix
+        run: bunx vsce package -o patchr-${{ steps.version.outputs.version }}.vsix
+
+      - name: Review the package contents
+        run: bunx vsce ls
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: patchr-${{ steps.version.outputs.version }}.vsix
+          if-no-files-found: error
+
+  publish:
+    name: Publish ${{ needs.verify.outputs.version }}
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the tag and the GitHub release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download the verified VSIX
+        uses: actions/download-artifact@v4
+        with:
+          name: vsix
 
       - name: Publish to Visual Studio Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
           if [ -z "$VSCE_PAT" ]; then
-            echo "Error: VSCE_PAT secret is not set."
+            echo "VSCE_PAT secret is not set" >&2
             exit 1
           fi
-          bunx vsce publish --packagePath patchr-${{ steps.versioning.outputs.version-core }}.vsix -p "$VSCE_PAT"
+          bunx vsce publish --packagePath patchr-${{ needs.verify.outputs.version }}.vsix -p "$VSCE_PAT"
 
-      - name: Create and push Git tag
+      - name: Tag the published commit
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag ${{ steps.versioning.outputs.new-version }}
-          git push origin ${{ steps.versioning.outputs.new-version }}
+          version='${{ needs.verify.outputs.version }}'
+          git tag "v${version}" "${GITHUB_SHA}"
+          git push origin "v${version}"
 
-      - name: Upload VSIX artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: extension-${{ steps.versioning.outputs.new-version }}
-          path: patchr-${{ steps.versioning.outputs.version-core }}.vsix
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version='${{ needs.verify.outputs.version }}'
+          awk -v ver="## [${version}]" '
+            index($0, ver) == 1 { inside = 1; next }
+            inside && /^## \[/ { exit }
+            inside { print }
+          ' CHANGELOG.md > "${RUNNER_TEMP}/notes.md"
+          gh release create "v${version}" \
+            --title "v${version}" \
+            --notes-file "${RUNNER_TEMP}/notes.md" \
+            "patchr-${version}.vsix"
