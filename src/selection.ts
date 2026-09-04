@@ -150,5 +150,6 @@ export function filesDiffSpec(uris: vscode.Uri[]): DiffSpec | undefined {
     defaultFileName,
     noChangesMsg,
     folder: workspaceFolder,
+    untracked: { paths: relativePaths },
   };
 }

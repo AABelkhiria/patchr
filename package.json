@@ -139,12 +139,12 @@
       "scm/resourceGroup/context": [
         {
           "command": "patchr.saveStagedDiff",
-          "when": "scmProvider == git && scmResourceGroup == staged",
+          "when": "scmProvider == git && scmResourceGroup == index",
           "group": "patchr"
         },
         {
           "command": "patchr.copyStagedDiff",
-          "when": "scmProvider == git && scmResourceGroup == staged",
+          "when": "scmProvider == git && scmResourceGroup == index",
           "group": "patchr_copy"
         },
         {
@@ -155,6 +155,16 @@
         {
           "command": "patchr.copyUnstagedDiff",
           "when": "scmProvider == git && scmResourceGroup == workingTree",
+          "group": "patchr_copy"
+        },
+        {
+          "command": "patchr.saveUnstagedDiff",
+          "when": "scmProvider == git && scmResourceGroup == untracked",
+          "group": "patchr"
+        },
+        {
+          "command": "patchr.copyUnstagedDiff",
+          "when": "scmProvider == git && scmResourceGroup == untracked",
           "group": "patchr_copy"
         }
       ],
@@ -234,6 +244,11 @@
           "type": "boolean",
           "default": true,
           "description": "Include full binary content (git diff --binary) so patches that touch binary files can be applied. When disabled, binary changes appear as a one-line stub that git apply rejects."
+        },
+        "patchr.includeUntracked": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include untracked (new, not yet added) files as \"new file\" hunks in unstaged, all-changes, file, and folder patches. Ignored files are never included."
         }
       }
     }

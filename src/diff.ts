@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { runGit } from './git';
+import { diffUntrackedFile, listUntrackedFiles, runGit } from './git';
 import { formatFilename } from './filename';
 import { resolveTargetFolder } from './selection';
 
@@ -16,6 +16,11 @@ export interface DiffSpec {
    * workspace contains several folders.
    */
   folder?: vscode.WorkspaceFolder;
+  /**
+   * Whether untracked files are appended as "new file" hunks (subject to the
+   * `patchr.includeUntracked` setting). `paths` limits which untracked files qualify.
+   */
+  untracked?: { paths?: string[] } | false;
 }
 
 export type DiffOutput = (spec: DiffSpec) => Promise<void>;
@@ -25,6 +30,7 @@ export const STAGED_SPEC: DiffSpec = {
   label: 'staged changes',
   defaultFileName: 'staged-changes.patch',
   noChangesMsg: 'No staged changes found in the repository.',
+  untracked: false,
 };
 
 export const UNSTAGED_SPEC: DiffSpec = {
@@ -45,11 +51,16 @@ export const ALL_SPEC: DiffSpec = {
 async function readDiff(spec: DiffSpec, cwd: string): Promise<string | undefined> {
   let diffContent: string;
   try {
-    const includeBinary = vscode.workspace
-      .getConfiguration('patchr')
-      .get<boolean>('includeBinary', true);
-    const flags = includeBinary ? ['--binary'] : [];
+    const config = vscode.workspace.getConfiguration('patchr');
+    const flags = config.get<boolean>('includeBinary', true) ? ['--binary'] : [];
     diffContent = await runGit(['diff', ...flags, ...spec.gitArgs], cwd);
+
+    if (spec.untracked !== false && config.get<boolean>('includeUntracked', true)) {
+      const files = await listUntrackedFiles(cwd, spec.untracked?.paths);
+      for (const file of files) {
+        diffContent += await diffUntrackedFile(cwd, file, flags);
+      }
+    }
   } catch (err: any) {
     const message: string = err.message || String(err);
     if (message.includes('not a git repository')) {
