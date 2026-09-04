@@ -1,6 +1,29 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { DiffSpec } from './diff';
+import type { DiffSpec } from './diff';
+
+/** Returns undefined (after showing a message) when no folder can be chosen. */
+export async function resolveTargetFolder(
+  folder?: vscode.WorkspaceFolder
+): Promise<vscode.WorkspaceFolder | undefined> {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    vscode.window.showErrorMessage(
+      'Patchr: Please open a workspace folder first.'
+    );
+    return undefined;
+  }
+
+  if (folder) {
+    return folder;
+  }
+  if (workspaceFolders.length === 1) {
+    return workspaceFolders[0];
+  }
+  return vscode.window.showWorkspaceFolderPick({
+    placeHolder: 'Select workspace folder for the patch',
+  });
+}
 
 export function toUri(
   resource?: vscode.Uri | vscode.SourceControlResourceState | any

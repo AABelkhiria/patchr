@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { runGit } from './git';
 import { formatFilename } from './filename';
+import { resolveTargetFolder } from './selection';
 
 export interface DiffSpec {
   /** Arguments passed to `git diff` (already split, no shell quoting needed). */
@@ -39,29 +40,6 @@ export const ALL_SPEC: DiffSpec = {
   defaultFileName: 'all-changes.patch',
   noChangesMsg: 'No changes found (staged or unstaged) compared to HEAD.',
 };
-
-/** Returns undefined (after showing a message) when no folder can be chosen. */
-async function resolveTargetFolder(
-  folder?: vscode.WorkspaceFolder
-): Promise<vscode.WorkspaceFolder | undefined> {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders || workspaceFolders.length === 0) {
-    vscode.window.showErrorMessage(
-      'Patchr: Please open a workspace folder first.'
-    );
-    return undefined;
-  }
-
-  if (folder) {
-    return folder;
-  }
-  if (workspaceFolders.length === 1) {
-    return workspaceFolders[0];
-  }
-  return vscode.window.showWorkspaceFolderPick({
-    placeHolder: 'Select workspace folder for the patch',
-  });
-}
 
 /** Returns undefined (after showing a message) when git fails or the diff is empty. */
 async function readDiff(spec: DiffSpec, cwd: string): Promise<string | undefined> {

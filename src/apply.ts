@@ -1,11 +1,30 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs/promises';
+import * as os from 'os';
 import * as path from 'path';
 import { runGit } from './git';
-import { resolveResourceUri } from './selection';
+import { resolveResourceUri, resolveTargetFolder } from './selection';
 
 function isPatchFile(uri: vscode.Uri): boolean {
   const lower = uri.fsPath.toLowerCase();
   return lower.endsWith('.patch') || lower.endsWith('.diff');
+}
+
+function looksLikeDiff(text: string): boolean {
+  return /^(diff --git |--- |\+\+\+ |@@ )/m.test(text);
+}
+
+/** Runs `git apply` and reports the outcome; `source` names the patch in messages. */
+async function applyPatchFile(patchFilePath: string, cwd: string, source: string): Promise<void> {
+  try {
+    await runGit(['apply', patchFilePath], cwd);
+  } catch (err: any) {
+    vscode.window.showErrorMessage(
+      `Patchr: Failed to apply patch from ${source}. ${err.message || err}`
+    );
+    return;
+  }
+  vscode.window.showInformationMessage(`Successfully applied patch from ${source}!`);
 }
 
 /**
@@ -45,19 +64,45 @@ export async function applyPatch(
 
   const targetFolder =
     vscode.workspace.getWorkspaceFolder(selectedUri) || workspaceFolders[0];
-  const cwd = targetFolder.uri.fsPath;
-  const patchFilePath = selectedUri.fsPath;
+  await applyPatchFile(
+    selectedUri.fsPath,
+    targetFolder.uri.fsPath,
+    path.basename(selectedUri.fsPath)
+  );
+}
 
-  try {
-    await runGit(['apply', patchFilePath], cwd);
-  } catch (err: any) {
+/**
+ * Applies the diff currently on the clipboard to the chosen workspace folder.
+ */
+export async function applyClipboardPatch(): Promise<void> {
+  let text = await vscode.env.clipboard.readText();
+  if (text.trim().length === 0) {
+    vscode.window.showErrorMessage('Patchr: The clipboard is empty.');
+    return;
+  }
+  if (!looksLikeDiff(text)) {
     vscode.window.showErrorMessage(
-      `Patchr: Failed to apply patch. ${err.message || err}`
+      'Patchr: The clipboard does not contain a unified diff.'
     );
     return;
   }
 
-  vscode.window.showInformationMessage(
-    `Successfully applied patch from ${path.basename(patchFilePath)}!`
-  );
+  const targetFolder = await resolveTargetFolder();
+  if (!targetFolder) {
+    return;
+  }
+
+  // git apply rejects a patch whose last line has no newline terminator.
+  if (!text.endsWith('\n')) {
+    text += '\n';
+  }
+
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'patchr-'));
+  const tempFile = path.join(tempDir, 'clipboard.patch');
+  try {
+    await fs.writeFile(tempFile, text, 'utf8');
+    await applyPatchFile(tempFile, targetFolder.uri.fsPath, 'clipboard');
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
 }

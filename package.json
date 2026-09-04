@@ -17,7 +17,8 @@
     "diff",
     "git",
     "staged",
-    "version control"
+    "version control",
+    "clipboard"
   ],
   "activationEvents": [],
   "icon": "icon.png",
@@ -45,8 +46,32 @@
         "title": "Patchr: Save Folder Changes to Patch File"
       },
       {
+        "command": "patchr.copyStagedDiff",
+        "title": "Patchr: Copy Staged Changes to Clipboard"
+      },
+      {
+        "command": "patchr.copyUnstagedDiff",
+        "title": "Patchr: Copy Unstaged Changes to Clipboard"
+      },
+      {
+        "command": "patchr.copyAllDiff",
+        "title": "Patchr: Copy All Changes (Staged & Unstaged) to Clipboard"
+      },
+      {
+        "command": "patchr.copyCurrentFileDiff",
+        "title": "Patchr: Copy File Changes to Clipboard"
+      },
+      {
+        "command": "patchr.copyFolderDiff",
+        "title": "Patchr: Copy Folder Changes to Clipboard"
+      },
+      {
         "command": "patchr.applyDiff",
         "title": "Patchr: Apply Patch File"
+      },
+      {
+        "command": "patchr.applyClipboardDiff",
+        "title": "Patchr: Apply Patch from Clipboard"
       }
     ],
     "menus": {
@@ -62,9 +87,19 @@
           "group": "patchr@2"
         },
         {
+          "command": "patchr.copyCurrentFileDiff",
+          "when": "!explorerResourceIsFolder && resourceExtname != .patch && resourceExtname != .diff",
+          "group": "patchr_copy@2"
+        },
+        {
           "command": "patchr.saveFolderDiff",
           "when": "explorerResourceIsFolder",
           "group": "patchr@2"
+        },
+        {
+          "command": "patchr.copyFolderDiff",
+          "when": "explorerResourceIsFolder",
+          "group": "patchr_copy@2"
         }
       ],
       "scm/title": [
@@ -73,16 +108,32 @@
           "group": "patchr@1"
         },
         {
+          "command": "patchr.copyStagedDiff",
+          "group": "patchr_copy@1"
+        },
+        {
           "command": "patchr.saveUnstagedDiff",
           "group": "patchr@2"
+        },
+        {
+          "command": "patchr.copyUnstagedDiff",
+          "group": "patchr_copy@2"
         },
         {
           "command": "patchr.saveAllDiff",
           "group": "patchr@3"
         },
         {
+          "command": "patchr.copyAllDiff",
+          "group": "patchr_copy@3"
+        },
+        {
           "command": "patchr.applyDiff",
           "group": "patchr@4"
+        },
+        {
+          "command": "patchr.applyClipboardDiff",
+          "group": "patchr@5"
         }
       ],
       "scm/resourceGroup/context": [
@@ -92,9 +143,19 @@
           "group": "patchr"
         },
         {
+          "command": "patchr.copyStagedDiff",
+          "when": "scmProvider == git && scmResourceGroup == staged",
+          "group": "patchr_copy"
+        },
+        {
           "command": "patchr.saveUnstagedDiff",
           "when": "scmProvider == git && scmResourceGroup == workingTree",
           "group": "patchr"
+        },
+        {
+          "command": "patchr.copyUnstagedDiff",
+          "when": "scmProvider == git && scmResourceGroup == workingTree",
+          "group": "patchr_copy"
         }
       ],
       "scm/resourceFolder/context": [
@@ -102,6 +163,11 @@
           "command": "patchr.saveFolderDiff",
           "when": "scmProvider == git",
           "group": "patchr"
+        },
+        {
+          "command": "patchr.copyFolderDiff",
+          "when": "scmProvider == git",
+          "group": "patchr_copy"
         }
       ],
       "scm/resourceState/context": [
@@ -109,6 +175,11 @@
           "command": "patchr.saveCurrentFileDiff",
           "when": "scmProvider == git",
           "group": "patchr"
+        },
+        {
+          "command": "patchr.copyCurrentFileDiff",
+          "when": "scmProvider == git",
+          "group": "patchr_copy"
         }
       ],
       "editor/context": [
@@ -116,6 +187,11 @@
           "command": "patchr.saveCurrentFileDiff",
           "when": "resourceExtname != .patch && resourceExtname != .diff",
           "group": "patchr@1"
+        },
+        {
+          "command": "patchr.copyCurrentFileDiff",
+          "when": "resourceExtname != .patch && resourceExtname != .diff",
+          "group": "patchr_copy@1"
         },
         {
           "command": "patchr.applyDiff",
@@ -128,6 +204,11 @@
           "command": "patchr.saveCurrentFileDiff",
           "when": "resourceExtname != .patch && resourceExtname != .diff",
           "group": "patchr@1"
+        },
+        {
+          "command": "patchr.copyCurrentFileDiff",
+          "when": "resourceExtname != .patch && resourceExtname != .diff",
+          "group": "patchr_copy@1"
         },
         {
           "command": "patchr.applyDiff",

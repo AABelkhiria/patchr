@@ -6,7 +6,7 @@ Create, save, and apply Git `.patch` files directly in VS Code.
 
 - **Export patches**: Save staged changes (`git diff --cached`), unstaged changes (`git diff`), all changes (`git diff HEAD`), changes from a single file, or changes from every file in a folder.
 - **Copy to clipboard**: Every export command has a clipboard counterpart, so a diff can be pasted straight into a chat, an issue, or a code review.
-- **Apply patches**: Apply `.patch` or `.diff` files to your workspace using `git apply`.
+- **Apply patches**: Apply `.patch` or `.diff` files, or a diff sitting on your clipboard, to your workspace using `git apply`.
 - **Context menus**: Export and apply patches from the Command Palette, Source Control view, File Explorer, or Editor tabs.
 
 ## Usage
@@ -40,6 +40,7 @@ They appear in the same context menus as their **Save** counterparts.
 
 - Run `Patchr: Apply Patch File` from the Command Palette and select a `.patch` or `.diff` file.
 - Or right-click any `.patch` / `.diff` file in the Explorer or editor tab and choose **Patchr: Apply Patch File**.
+- Run `Patchr: Apply Patch from Clipboard` to apply a diff you copied from a chat, an issue, or a code review without saving it first.
 
 ## Settings
 

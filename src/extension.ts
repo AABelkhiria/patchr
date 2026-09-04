@@ -12,7 +12,7 @@ import {
   filesDiffSpec,
   selectedOrActiveFileUris,
 } from './selection';
-import { applyPatch } from './apply';
+import { applyClipboardPatch, applyPatch } from './apply';
 
 export { formatFilename } from './filename';
 
@@ -58,7 +58,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('patchr.copyAllDiff', () => copyDiff(ALL_SPEC)),
     vscode.commands.registerCommand('patchr.copyCurrentFileDiff', currentFileHandler(copyDiff)),
     vscode.commands.registerCommand('patchr.copyFolderDiff', folderHandler(copyDiff)),
-    vscode.commands.registerCommand('patchr.applyDiff', applyPatch)
+    vscode.commands.registerCommand('patchr.applyDiff', applyPatch),
+    vscode.commands.registerCommand('patchr.applyClipboardDiff', applyClipboardPatch)
   );
 }
 
