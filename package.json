@@ -2,7 +2,7 @@
   "name": "patchr",
   "displayName": "Patchr",
   "description": "Generate, save, and apply Git patches (.patch) directly from VS Code",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "AshBelkhiria",
   "license": "MIT",
   "engines": {

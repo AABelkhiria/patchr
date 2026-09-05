@@ -1,8 +1,21 @@
 # Change Log
 
-All notable changes to the **Patchr** extension will be documented in this file.
+All notable changes to **Patchr** are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Check [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) for recommendations on how to structure this file.
+## [0.3.0] - 2026-09-05
+
+### Added
+- **Copy to clipboard.** Every export command has a clipboard twin: `Copy Staged Changes`, `Copy Unstaged Changes`, `Copy All Changes`, `Copy File Changes`, and `Copy Folder Changes`. They live in the same context menus as the save commands and skip the filename prompt.
+- **Apply from clipboard.** `Patchr: Apply Patch from Clipboard` applies a unified diff copied from a chat, an issue, or a code review without saving it to a file first.
+- **Binary files.** Diffs are generated with `--binary`, so patches touching images or other binary files apply cleanly instead of failing on a `Binary files differ` stub. Controlled by the new `patchr.includeBinary` setting (default on).
+- **Untracked files.** New, not-yet-added files are appended to unstaged, all-changes, file, and folder patches as "new file" hunks. Ignored files are never included. Controlled by the new `patchr.includeUntracked` setting (default on). The **Untracked Changes** group in Source Control now offers the unstaged save and copy commands.
+
+### Changed
+- Commands now wait for git to finish before resolving, so failures are reported reliably.
+
+### Fixed
+- The **Staged Changes** group context menu showed no Patchr commands. The menu matched a resource group named `staged`, but the built-in Git extension calls it `index`.
+- A brand-new file no longer reports "No changes found" when exported on its own.
 
 ## [0.2.0] - 2026-09-04
 
